@@ -6,8 +6,8 @@
 
 class Submission {
 private:
-    std::string* _filePath;
-    std::string* _subject;
+    std::string _filePath;
+    std::string _subject;
 
 public:
     Submission();
