@@ -5,7 +5,8 @@
 
 class ArgParser {
 private:
-    std::string _exam;
+    std::string _rank;
+    std::string _level;
     std::string _subject;
     std::string _sourceFile;
     bool _showHelp;
@@ -19,9 +20,11 @@ public:
     bool parse(int argc, char **argv);
     void showUsage() const;
 
-    bool hasExam() const;
+    bool hasRank() const;
+    bool hasLevel() const;
     bool hasSubject() const;
-    const std::string &getExam() const;
+    const std::string &getRank() const;
+    const std::string &getLevel() const;
     const std::string &getSubject() const;
     const std::string &getSourceFile() const;
     bool shouldShowHelp() const;

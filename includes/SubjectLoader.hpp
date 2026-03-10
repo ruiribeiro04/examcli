@@ -6,8 +6,9 @@
 
 class SubjectLoader {
 private:
-    std::string _exam;
-    std::string _exercise;
+    std::string _rank;
+    std::string _level;
+    std::string _subject;
     std::string _subjectContent;
 
 public:
@@ -16,7 +17,7 @@ public:
     SubjectLoader &operator=(const SubjectLoader &other);
     ~SubjectLoader();
 
-    bool load(const std::string &exam, const std::string &exercise);
+    bool load(const std::string &rank, const std::string &level, const std::string &subject);
     const std::string &getSubjectContent() const;
 
 private:
