@@ -1,5 +1,6 @@
 # Configuration: Set to 1 to use environment variables, 0 for hardcoded values
 USE_ENV_VARS = 1
+USE_RESPONSE_FORMAT = 0
 
 # Hardcoded values (used when USE_ENV_VARS = 0)
 DEFAULT_MODEL = model_name
@@ -9,6 +10,7 @@ CXX = c++
 CXXFLAGS = -Wall -Wextra -Werror -std=c++98 -I./includes
 
 CXXFLAGS += -DUSE_ENV_VARS=$(USE_ENV_VARS)
+CXXFLAGS += -DUSE_RESPONSE_FORMAT=$(USE_RESPONSE_FORMAT)
 ifeq ($(USE_ENV_VARS),0)
 CXXFLAGS += -DDEFAULT_MODEL=\"$(DEFAULT_MODEL)\" \
             -DDEFAULT_API_URL=\"$(DEFAULT_API_URL)\"

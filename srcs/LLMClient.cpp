@@ -29,24 +29,24 @@ LLMClient::~LLMClient() {
 }
 
 bool LLMClient::initialize() {
-    const char *apiKey = std::getenv("OPENAI_API_KEY");
+    const char *apiKey = std::getenv("LLM_API_KEY");
     if (apiKey == NULL || std::strlen(apiKey) == 0) {
-        _lastError = "OPENAI_API_KEY environment variable not set";
+        _lastError = "LLM_API_KEY environment variable not set";
         return false;
     }
     _apiKey = apiKey;
 
 #if USE_ENV_VARS
-    const char *apiUrl = std::getenv("OPENAI_API_URL");
+    const char *apiUrl = std::getenv("LLM_API_URL");
     if (apiUrl == NULL || std::strlen(apiUrl) == 0) {
-        _lastError = "OPENAI_API_URL environment variable not set";
+        _lastError = "LLM_API_URL environment variable not set";
         return false;
     }
     _apiUrl = apiUrl;
 
-    const char *model = std::getenv("OPENAI_MODEL");
+    const char *model = std::getenv("LLM_MODEL");
     if (model == NULL || std::strlen(model) == 0) {
-        _lastError = "OPENAI_MODEL environment variable not set";
+        _lastError = "LLM_MODEL environment variable not set";
         return false;
     }
     _model = model;
@@ -68,12 +68,14 @@ bool LLMClient::correct(const std::string &subject, const std::string &code,
              << "\"model\":\"" << _model << "\","
              << "\"messages\":[{\"role\":\"system\",\"content\":\"You "
                 "are a 42 school code evaluator. Respond only in JSON "
-                "format with exactly two fields: 'correct' (boolean) "
-                "and 'hint' (string). Provide hints, not solutions.\"},"
+                "format with exactly two fields: correct (boolean) "
+                "and hint (string). Provide hints, not solutions.\"},"
                 << "{\"role\":\"user\",\"content\":"
-             << escapedPrompt << "}],"
-             << "\"response_format\":{\"type\":\"json_object\"},"
-             << "\"temperature\":0.3"
+             << escapedPrompt << "}]"
+#if USE_RESPONSE_FORMAT
+             << ",\"response_format\":{\"type\":\"json_object\"}"
+#endif
+             << ",\"temperature\":0.3"
              << "}";
 
     std::string postFields = jsonBody.str();
@@ -166,11 +168,15 @@ bool LLMClient::parseResponse(const std::string &json, bool &correct,
         size_t start = json.find('"', contentPos + 10);
         if (start != std::string::npos) {
             start++;
-            size_t end = json.find('"', start);
-            while (end != std::string::npos && json[end - 1] == '\\') {
-                end = json.find('"', end + 1);
+            // Find the closing quote, handling escaped quotes properly
+            size_t end = start;
+            while (end < json.length()) {
+                if (json[end] == '"' && json[end - 1] != '\\') {
+                    break;
+                }
+                end++;
             }
-            if (end != std::string::npos) {
+            if (end < json.length()) {
                 content = json.substr(start, end - start);
             }
         }
@@ -178,6 +184,41 @@ bool LLMClient::parseResponse(const std::string &json, bool &correct,
 
     if (content.empty()) {
         content = json;
+    }
+
+    // First, unescape the content (convert \n to actual newlines, etc.)
+    std::string unescaped;
+    for (size_t i = 0; i < content.length(); ++i) {
+        if (content[i] == '\\' && i + 1 < content.length()) {
+            switch (content[i + 1]) {
+                case 'n': unescaped += '\n'; i++; break;
+                case 't': unescaped += '\t'; i++; break;
+                case 'r': unescaped += '\r'; i++; break;
+                case '\\': unescaped += '\\'; i++; break;
+                case '"': unescaped += '"'; i++; break;
+                default: unescaped += content[i]; break;
+            }
+        } else {
+            unescaped += content[i];
+        }
+    }
+    content = unescaped;
+
+    // Handle markdown code blocks (some models wrap JSON in ```json ... ```)
+    size_t codeBlockStart = content.find("```json");
+    if (codeBlockStart != std::string::npos) {
+        codeBlockStart += 7; // Skip "```json"
+        size_t codeBlockEnd = content.find("```", codeBlockStart);
+        if (codeBlockEnd != std::string::npos) {
+            // Extract content between code block markers
+            content = content.substr(codeBlockStart, codeBlockEnd - codeBlockStart);
+            // Trim whitespace
+            size_t first = content.find_first_not_of(" \t\n\r");
+            size_t last = content.find_last_not_of(" \t\n\r");
+            if (first != std::string::npos && last != std::string::npos) {
+                content = content.substr(first, last - first + 1);
+            }
+        }
     }
 
     std::string correctStr;
@@ -191,12 +232,6 @@ bool LLMClient::parseResponse(const std::string &json, bool &correct,
     if (!findJsonValue(content, "hint", hint)) {
         _lastError = "Invalid API response format: missing 'hint' field";
         return false;
-    }
-
-    size_t pos = 0;
-    while ((pos = hint.find("\\n", pos)) != std::string::npos) {
-        hint.replace(pos, 2, "\n");
-        pos += 1;
     }
 
     return true;

@@ -7,19 +7,20 @@
 #include <cstdlib>
 #include <ctime>
 
-SubjectLoader::SubjectLoader() : _exam(), _exercise(), _subjectContent() {
+SubjectLoader::SubjectLoader() : _rank(), _level(), _subject(), _subjectContent() {
     std::srand(std::time(NULL));
 }
 
 SubjectLoader::SubjectLoader(const SubjectLoader &other)
-    : _exam(other._exam), _exercise(other._exercise),
-      _subjectContent(other._subjectContent) {
+    : _rank(other._rank), _level(other._level),
+      _subject(other._subject), _subjectContent(other._subjectContent) {
 }
 
 SubjectLoader &SubjectLoader::operator=(const SubjectLoader &other) {
     if (this != &other) {
-        _exam = other._exam;
-        _exercise = other._exercise;
+        _rank = other._rank;
+        _level = other._level;
+        _subject = other._subject;
         _subjectContent = other._subjectContent;
     }
     return *this;
@@ -28,44 +29,57 @@ SubjectLoader &SubjectLoader::operator=(const SubjectLoader &other) {
 SubjectLoader::~SubjectLoader() {
 }
 
-bool SubjectLoader::load(const std::string &exam, const std::string &exercise) {
-    if (!isValidName(exam)) {
-        std::cerr << "Error: Invalid exam name: " << exam << "\n";
+bool SubjectLoader::load(const std::string &rank, const std::string &level, const std::string &subject) {
+    if (!isValidName(rank)) {
+        std::cerr << "Error: Invalid rank name: " << rank << "\n";
         return false;
     }
 
-    if (!isValidName(exercise)) {
-        std::cerr << "Error: Invalid exercise name: " << exercise << "\n";
+    if (!isValidName(level)) {
+        std::cerr << "Error: Invalid level name: " << level << "\n";
         return false;
     }
 
-    _exam = exam;
-    _exercise = exercise;
+    if (!isValidName(subject)) {
+        std::cerr << "Error: Invalid subject name: " << subject << "\n";
+        return false;
+    }
+
+    _rank = rank;
+    _level = level;
+    _subject = subject;
 
     std::string basePath = "subjects/";
-    std::string examPath = basePath + exam;
+    std::string rankPath = basePath + rank;
 
-    if (!directoryExists(examPath)) {
-        std::cerr << "Error: Exam not found: " << exam << "\n";
+    if (!directoryExists(rankPath)) {
+        std::cerr << "Error: Rank not found: " << rank << "\n";
         return false;
     }
 
-    std::string exercisePath = examPath + "/" + exercise;
+    std::string levelPath = rankPath + "/" + level;
 
-    if (!directoryExists(exercisePath)) {
-        std::cerr << "Error: Exercise not found: " << exercise << "\n";
+    if (!directoryExists(levelPath)) {
+        std::cerr << "Error: Level not found: " << level << "\n";
         return false;
     }
 
-    std::vector<std::string> txtFiles = listTxtFiles(exercisePath);
+    std::string subjectPath = levelPath + "/" + subject;
+
+    if (!directoryExists(subjectPath)) {
+        std::cerr << "Error: Subject not found: " << subject << "\n";
+        return false;
+    }
+
+    std::vector<std::string> txtFiles = listTxtFiles(subjectPath);
 
     if (txtFiles.empty()) {
-        std::cerr << "Error: No subjects found for " << exam << "/" << exercise << "\n";
+        std::cerr << "Error: No subject files (.txt) found for " << rank << "/" << level << "/" << subject << "\n";
         return false;
     }
 
     int randomIndex = std::rand() % txtFiles.size();
-    std::string selectedFile = exercisePath + "/" + txtFiles[randomIndex];
+    std::string selectedFile = subjectPath + "/" + txtFiles[randomIndex];
 
     _subjectContent = readFile(selectedFile);
 

@@ -2,17 +2,18 @@
 #include <iostream>
 #include <fstream>
 
-ArgParser::ArgParser() : _exam(), _subject(), _sourceFile(), _showHelp(false) {
+ArgParser::ArgParser() : _rank(), _level(), _subject(), _sourceFile(), _showHelp(false) {
 }
 
 ArgParser::ArgParser(const ArgParser &other)
-    : _exam(other._exam), _subject(other._subject),
-      _sourceFile(other._sourceFile), _showHelp(other._showHelp) {
+    : _rank(other._rank), _level(other._level),
+      _subject(other._subject), _sourceFile(other._sourceFile), _showHelp(other._showHelp) {
 }
 
 ArgParser &ArgParser::operator=(const ArgParser &other) {
     if (this != &other) {
-        _exam = other._exam;
+        _rank = other._rank;
+        _level = other._level;
         _subject = other._subject;
         _sourceFile = other._sourceFile;
         _showHelp = other._showHelp;
@@ -37,14 +38,21 @@ bool ArgParser::parse(int argc, char **argv) {
             _showHelp = true;
             showUsage();
             return true;
-        } else if (arg == "--exam") {
+        } else if (arg == "--rank" || arg == "-r") {
             if (i + 1 >= argc) {
-                std::cerr << "Error: --exam requires an argument\n";
+                std::cerr << "Error: --rank requires an argument\n";
                 showUsage();
                 return false;
             }
-            _exam = argv[++i];
-        } else if (arg == "--subject") {
+            _rank = argv[++i];
+        } else if (arg == "--level" || arg == "-l") {
+            if (i + 1 >= argc) {
+                std::cerr << "Error: --level requires an argument\n";
+                showUsage();
+                return false;
+            }
+            _level = argv[++i];
+        } else if (arg == "--subject" || arg == "-s") {
             if (i + 1 >= argc) {
                 std::cerr << "Error: --subject requires an argument\n";
                 showUsage();
@@ -78,24 +86,33 @@ void ArgParser::showUsage() const {
     std::cout << "Usage: ./examcli [options] <source_file>\n"
               << "\n"
               << "Options:\n"
-              << "  --exam <name>      Exam name (e.g., exam02)\n"
-              << "  --subject <name>   Subject/exercise name (e.g., ex01)\n"
-              << "  -h, --help         Show this help message\n"
+              << "  -r, --rank <name>     Rank name (e.g., rank02)\n"
+              << "  -l, --level <name>    Level name (e.g., level0)\n"
+              << "  -s, --subject <name>  Subject/exercise name (e.g., fizzbuzz)\n"
+              << "  -h, --help            Show this help message\n"
               << "\n"
               << "Example:\n"
-              << "  ./examcli --exam exam02 --subject ex01 solution.cpp\n";
+              << "  ./examcli -r rank02 -l level0 -s fizzbuzz solution.c\n";
 }
 
-bool ArgParser::hasExam() const {
-    return !_exam.empty();
+bool ArgParser::hasRank() const {
+    return !_rank.empty();
+}
+
+bool ArgParser::hasLevel() const {
+    return !_level.empty();
 }
 
 bool ArgParser::hasSubject() const {
     return !_subject.empty();
 }
 
-const std::string &ArgParser::getExam() const {
-    return _exam;
+const std::string &ArgParser::getRank() const {
+    return _rank;
+}
+
+const std::string &ArgParser::getLevel() const {
+    return _level;
 }
 
 const std::string &ArgParser::getSubject() const {

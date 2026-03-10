@@ -17,12 +17,13 @@ int main(int argc, char **argv) {
         return 0;
     }
 
-    std::string exam = parser.hasExam() ? parser.getExam() : "exam02";
-    std::string subject = parser.hasSubject() ? parser.getSubject() : "ex00";
+    std::string rank = parser.hasRank() ? parser.getRank() : "rank02";
+    std::string level = parser.hasLevel() ? parser.getLevel() : "level0";
+    std::string subject = parser.hasSubject() ? parser.getSubject() : "fizzbuzz";
     std::string sourceFile = parser.getSourceFile();
 
     SubjectLoader loader;
-    if (!loader.load(exam, subject)) {
+    if (!loader.load(rank, level, subject)) {
         return 1;
     }
 

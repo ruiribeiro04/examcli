@@ -32,9 +32,14 @@ Basic usage:
 ./examcli code.cpp
 ```
 
-Specify exam and subject:
+Specify rank, level and subject:
 ```bash
-./examcli -e exam03 -s ex03 code.cpp
+./examcli -r rank02 -l level0 -s fizzbuzz code.c
+```
+
+Use short flags:
+```bash
+./examcli -r rank03 -l level1 -s filter solution.c
 ```
 
 See all options:
@@ -57,7 +62,7 @@ You need to set these environment variables:
 ## How it works
 
 1. Reads your source file
-2. Loads the subject description from `subjects/<exam>/<subject>/`
+2. Loads the subject description from `subjects/<rank>/<level>/<subject>/`
 3. Sends both to the LLM with a system prompt
 4. Parses the response and shows you pass/fail + hints
 
@@ -91,7 +96,7 @@ examcli/
 → Check your environment variables are set correctly.
 
 **"Subject not found"**
-→ Make sure the subject file exists in `subjects/<exam>/<subject>/subject1.txt`
+→ Make sure the subject file exists in `subjects/<rank>/<level>/<subject>/sub.txt`
 
 ## TODO / Ideas
 
