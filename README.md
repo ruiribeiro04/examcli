@@ -10,7 +10,7 @@ You write the code yourself, submit it, and get instant feedback on whether it m
 
 ```bash
 # Clone it
-git clone <repo-url>
+git clone https://github.com/ruiribeiro04/examcli.git
 cd examcli
 
 # Build it
