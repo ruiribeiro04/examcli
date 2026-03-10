@@ -208,3 +208,26 @@ void SubjectLoader::showAvailableSubjects(const std::string &rank, const std::st
     }
     std::cout << "\n";
 }
+
+void SubjectLoader::showAll() const {
+    std::vector<std::string> ranks = listRanks();
+    
+    std::cout << "Available exercises:\n\n";
+    
+    for (size_t r = 0; r < ranks.size(); ++r) {
+        std::cout << ranks[r] << "/\n";
+        
+        std::vector<std::string> levels = listLevels(ranks[r]);
+        for (size_t l = 0; l < levels.size(); ++l) {
+            std::cout << "  " << levels[l] << "/\n";
+            
+            std::vector<std::string> subjects = listSubjects(ranks[r], levels[l]);
+            for (size_t s = 0; s < subjects.size(); ++s) {
+                std::cout << "    " << subjects[s] << "\n";
+            }
+        }
+    }
+    
+    std::cout << "\nUsage: ./examcli [options] <source_file>\n";
+    std::cout << "Use -h for help\n";
+}
