@@ -6,17 +6,14 @@
 #include <cstdlib>
 
 LLMClient::LLMClient() : _apiKey(), _apiUrl(), _model(), _lastError() {
-    std::cout << "LLMClient default constructor called\n";
 }
 
 LLMClient::LLMClient(const LLMClient &other)
     : _apiKey(other._apiKey), _apiUrl(other._apiUrl),
       _model(other._model), _lastError(other._lastError) {
-    std::cout << "LLMClient copy constructor called\n";
 }
 
 LLMClient &LLMClient::operator=(const LLMClient &other) {
-    std::cout << "LLMClient copy assignment operator called\n";
     if (this != &other) {
         _apiKey = other._apiKey;
         _apiUrl = other._apiUrl;
@@ -27,7 +24,6 @@ LLMClient &LLMClient::operator=(const LLMClient &other) {
 }
 
 LLMClient::~LLMClient() {
-    std::cout << "LLMClient destructor called\n";
 }
 
 bool LLMClient::initialize() {
