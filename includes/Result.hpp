@@ -16,7 +16,9 @@ public:
     Result &operator=(const Result &other);
     ~Result();
 
+    void setCorrectionResult(bool passed, const std::string &hint);
     void show() const;
+    int getExitCode() const;
 };
 
 #endif
