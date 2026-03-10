@@ -54,6 +54,7 @@ bool SubjectLoader::load(const std::string &rank, const std::string &level, cons
 
     if (!directoryExists(rankPath)) {
         std::cerr << "Error: Rank not found: " << rank << "\n";
+        showAvailableRanks();
         return false;
     }
 
@@ -61,6 +62,7 @@ bool SubjectLoader::load(const std::string &rank, const std::string &level, cons
 
     if (!directoryExists(levelPath)) {
         std::cerr << "Error: Level not found: " << level << "\n";
+        showAvailableLevels(rank);
         return false;
     }
 
@@ -68,6 +70,7 @@ bool SubjectLoader::load(const std::string &rank, const std::string &level, cons
 
     if (!directoryExists(subjectPath)) {
         std::cerr << "Error: Subject not found: " << subject << "\n";
+        showAvailableSubjects(rank, level);
         return false;
     }
 
@@ -142,4 +145,66 @@ bool SubjectLoader::isValidName(const std::string &name) const {
         }
     }
     return !name.empty();
+}
+
+std::vector<std::string> SubjectLoader::listDirectories(const std::string &path) const {
+    std::vector<std::string> dirs;
+    DIR *dir = opendir(path.c_str());
+
+    if (dir == NULL) {
+        return dirs;
+    }
+
+    struct dirent *entry;
+    while ((entry = readdir(dir)) != NULL) {
+        std::string name = entry->d_name;
+        if (name != "." && name != "..") {
+            std::string fullPath = path + "/" + name;
+            if (directoryExists(fullPath)) {
+                dirs.push_back(name);
+            }
+        }
+    }
+
+    closedir(dir);
+    return dirs;
+}
+
+std::vector<std::string> SubjectLoader::listRanks() const {
+    return listDirectories("subjects");
+}
+
+std::vector<std::string> SubjectLoader::listLevels(const std::string &rank) const {
+    return listDirectories("subjects/" + rank);
+}
+
+std::vector<std::string> SubjectLoader::listSubjects(const std::string &rank, const std::string &level) const {
+    return listDirectories("subjects/" + rank + "/" + level);
+}
+
+void SubjectLoader::showAvailableRanks() const {
+    std::vector<std::string> ranks = listRanks();
+    std::cout << "\nAvailable ranks:\n";
+    for (size_t i = 0; i < ranks.size(); ++i) {
+        std::cout << "  " << ranks[i];
+    }
+    std::cout << "\n";
+}
+
+void SubjectLoader::showAvailableLevels(const std::string &rank) const {
+    std::vector<std::string> levels = listLevels(rank);
+    std::cout << "\nAvailable levels for " << rank << ":\n";
+    for (size_t i = 0; i < levels.size(); ++i) {
+        std::cout << "  " << levels[i];
+    }
+    std::cout << "\n";
+}
+
+void SubjectLoader::showAvailableSubjects(const std::string &rank, const std::string &level) const {
+    std::vector<std::string> subjects = listSubjects(rank, level);
+    std::cout << "\nAvailable subjects for " << rank << "/" << level << ":\n";
+    for (size_t i = 0; i < subjects.size(); ++i) {
+        std::cout << "  " << subjects[i];
+    }
+    std::cout << "\n";
 }

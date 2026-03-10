@@ -17,12 +17,38 @@ int main(int argc, char **argv) {
         return 0;
     }
 
+    SubjectLoader loader;
+
+    if (parser.shouldListRanks()) {
+        loader.showAvailableRanks();
+        return 0;
+    }
+
+    if (parser.shouldListLevels()) {
+        if (!parser.hasRank()) {
+            std::cerr << "Error: --list-levels requires a rank (-r)\n";
+            parser.showUsage();
+            return 1;
+        }
+        loader.showAvailableLevels(parser.getRank());
+        return 0;
+    }
+
+    if (parser.shouldListSubjects()) {
+        if (!parser.hasRank() || !parser.hasLevel()) {
+            std::cerr << "Error: --list-subjects requires a rank (-r) and level (-l)\n";
+            parser.showUsage();
+            return 1;
+        }
+        loader.showAvailableSubjects(parser.getRank(), parser.getLevel());
+        return 0;
+    }
+
     std::string rank = parser.hasRank() ? parser.getRank() : "rank02";
     std::string level = parser.hasLevel() ? parser.getLevel() : "level0";
     std::string subject = parser.hasSubject() ? parser.getSubject() : "fizzbuzz";
     std::string sourceFile = parser.getSourceFile();
 
-    SubjectLoader loader;
     if (!loader.load(rank, level, subject)) {
         return 1;
     }
