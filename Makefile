@@ -24,14 +24,15 @@ SRCS = $(SRCS_DIR)/main.cpp \
        $(SRCS_DIR)/LLMClient.cpp \
        $(SRCS_DIR)/Submission.cpp \
        $(SRCS_DIR)/Result.cpp \
-       $(SRCS_DIR)/FileReader.cpp
+       $(SRCS_DIR)/FileReader.cpp \
+       $(SRCS_DIR)/HttpClient.cpp
 
 OBJS = $(SRCS:$(SRCS_DIR)/%.cpp=$(OBJS_DIR)/%.o)
 
 all: $(NAME)
 
 $(NAME): $(OBJS)
-	$(CXX) $(CXXFLAGS) -o $(NAME) $(OBJS) -lcurl
+	$(CXX) $(CXXFLAGS) -o $(NAME) $(OBJS)
 
 $(OBJS_DIR)/%.o: $(SRCS_DIR)/%.cpp | $(OBJS_DIR)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
