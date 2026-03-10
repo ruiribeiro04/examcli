@@ -27,6 +27,7 @@ public:
     void showAvailableRanks() const;
     void showAvailableLevels(const std::string &rank) const;
     void showAvailableSubjects(const std::string &rank, const std::string &level) const;
+    void showAll() const;
 
 private:
     bool directoryExists(const std::string &path) const;

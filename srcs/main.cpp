@@ -19,6 +19,11 @@ int main(int argc, char **argv) {
 
     SubjectLoader loader;
 
+    if (parser.shouldShowAll()) {
+        loader.showAll();
+        return 0;
+    }
+
     if (parser.shouldListRanks()) {
         loader.showAvailableRanks();
         return 0;

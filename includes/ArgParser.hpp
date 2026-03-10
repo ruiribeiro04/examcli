@@ -13,6 +13,7 @@ private:
     bool _listRanks;
     bool _listLevels;
     bool _listSubjects;
+    bool _showAll;
 
 public:
     ArgParser();
@@ -34,6 +35,7 @@ public:
     bool shouldListRanks() const;
     bool shouldListLevels() const;
     bool shouldListSubjects() const;
+    bool shouldShowAll() const;
 
 private:
     bool fileExists(const std::string &path) const;

@@ -21,6 +21,9 @@ export LLM_API_KEY="your-api-key"
 export LLM_MODEL="model_name"
 export LLM_API_URL="https://example.com/v1/chat/completions"
 
+# See all available exercises
+./examcli
+
 # Run it
 ./examcli my_solution.cpp
 ```

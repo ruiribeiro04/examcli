@@ -3,13 +3,14 @@
 #include <fstream>
 
 ArgParser::ArgParser() : _rank(), _level(), _subject(), _sourceFile(), _showHelp(false),
-    _listRanks(false), _listLevels(false), _listSubjects(false) {
+    _listRanks(false), _listLevels(false), _listSubjects(false), _showAll(false) {
 }
 
 ArgParser::ArgParser(const ArgParser &other)
     : _rank(other._rank), _level(other._level),
       _subject(other._subject), _sourceFile(other._sourceFile), _showHelp(other._showHelp),
-      _listRanks(other._listRanks), _listLevels(other._listLevels), _listSubjects(other._listSubjects) {
+      _listRanks(other._listRanks), _listLevels(other._listLevels), _listSubjects(other._listSubjects),
+      _showAll(other._showAll) {
 }
 
 ArgParser &ArgParser::operator=(const ArgParser &other) {
@@ -22,6 +23,7 @@ ArgParser &ArgParser::operator=(const ArgParser &other) {
         _listRanks = other._listRanks;
         _listLevels = other._listLevels;
         _listSubjects = other._listSubjects;
+        _showAll = other._showAll;
     }
     return *this;
 }
@@ -31,9 +33,8 @@ ArgParser::~ArgParser() {
 
 bool ArgParser::parse(int argc, char **argv) {
     if (argc < 2) {
-        std::cerr << "Error: No source file provided\n";
-        showUsage();
-        return false;
+        _showAll = true;
+        return true;
     }
 
     for (int i = 1; i < argc; ++i) {
@@ -155,6 +156,10 @@ bool ArgParser::shouldListLevels() const {
 
 bool ArgParser::shouldListSubjects() const {
     return _listSubjects;
+}
+
+bool ArgParser::shouldShowAll() const {
+    return _showAll;
 }
 
 bool ArgParser::fileExists(const std::string &path) const {
