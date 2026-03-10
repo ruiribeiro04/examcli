@@ -3,17 +3,14 @@
 #include <fstream>
 
 ArgParser::ArgParser() : _exam(), _subject(), _sourceFile(), _showHelp(false) {
-    std::cout << "ArgParser default constructor called\n";
 }
 
 ArgParser::ArgParser(const ArgParser &other)
     : _exam(other._exam), _subject(other._subject),
       _sourceFile(other._sourceFile), _showHelp(other._showHelp) {
-    std::cout << "ArgParser copy constructor called\n";
 }
 
 ArgParser &ArgParser::operator=(const ArgParser &other) {
-    std::cout << "ArgParser copy assignment operator called\n";
     if (this != &other) {
         _exam = other._exam;
         _subject = other._subject;
@@ -24,7 +21,6 @@ ArgParser &ArgParser::operator=(const ArgParser &other) {
 }
 
 ArgParser::~ArgParser() {
-    std::cout << "ArgParser destructor called\n";
 }
 
 bool ArgParser::parse(int argc, char **argv) {

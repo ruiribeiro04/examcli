@@ -8,18 +8,15 @@
 #include <ctime>
 
 SubjectLoader::SubjectLoader() : _exam(), _exercise(), _subjectContent() {
-    std::cout << "SubjectLoader default constructor called\n";
     std::srand(std::time(NULL));
 }
 
 SubjectLoader::SubjectLoader(const SubjectLoader &other)
     : _exam(other._exam), _exercise(other._exercise),
       _subjectContent(other._subjectContent) {
-    std::cout << "SubjectLoader copy constructor called\n";
 }
 
 SubjectLoader &SubjectLoader::operator=(const SubjectLoader &other) {
-    std::cout << "SubjectLoader copy assignment operator called\n";
     if (this != &other) {
         _exam = other._exam;
         _exercise = other._exercise;
@@ -29,7 +26,6 @@ SubjectLoader &SubjectLoader::operator=(const SubjectLoader &other) {
 }
 
 SubjectLoader::~SubjectLoader() {
-    std::cout << "SubjectLoader destructor called\n";
 }
 
 bool SubjectLoader::load(const std::string &exam, const std::string &exercise) {
