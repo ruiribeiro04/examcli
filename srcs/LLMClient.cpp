@@ -2,15 +2,16 @@
 #include <iostream>
 #include <sstream>
 #include <cstring>
-#include <curl/curl.h>
 #include <cstdlib>
 
-LLMClient::LLMClient() : _apiKey(), _apiUrl(), _model(), _lastError() {
+LLMClient::LLMClient() : _apiKey(), _apiUrl(), _model(), _lastError(), _httpClient() {
+    _httpClient.setTimeout(TIMEOUT_SECONDS);
 }
 
 LLMClient::LLMClient(const LLMClient &other)
     : _apiKey(other._apiKey), _apiUrl(other._apiUrl),
-      _model(other._model), _lastError(other._lastError) {
+      _model(other._model), _lastError(other._lastError),
+      _httpClient(other._httpClient) {
 }
 
 LLMClient &LLMClient::operator=(const LLMClient &other) {
@@ -19,6 +20,7 @@ LLMClient &LLMClient::operator=(const LLMClient &other) {
         _apiUrl = other._apiUrl;
         _model = other._model;
         _lastError = other._lastError;
+        _httpClient = other._httpClient;
     }
     return *this;
 }
@@ -56,20 +58,8 @@ bool LLMClient::initialize() {
     return true;
 }
 
-static size_t writeCallback(void *contents, size_t size, size_t nmemb,
-                            std::string *userp) {
-    userp->append((char *)contents, size * nmemb);
-    return size * nmemb;
-}
-
 bool LLMClient::correct(const std::string &subject, const std::string &code,
                         bool &correct, std::string &hint) {
-    CURL *curl = curl_easy_init();
-    if (!curl) {
-        _lastError = "Failed to initialize CURL";
-        return false;
-    }
-
     std::string prompt = buildPrompt(subject, code);
     std::string escapedPrompt = escapeJson(prompt);
 
@@ -80,7 +70,7 @@ bool LLMClient::correct(const std::string &subject, const std::string &code,
                 "are a 42 school code evaluator. Respond only in JSON "
                 "format with exactly two fields: 'correct' (boolean) "
                 "and 'hint' (string). Provide hints, not solutions.\"},"
-                "{\"role\":\"user\",\"content\":"
+                << "{\"role\":\"user\",\"content\":"
              << escapedPrompt << "}],"
              << "\"response_format\":{\"type\":\"json_object\"},"
              << "\"temperature\":0.3"
@@ -89,44 +79,12 @@ bool LLMClient::correct(const std::string &subject, const std::string &code,
     std::string postFields = jsonBody.str();
     std::string response;
 
-    struct curl_slist *headers = NULL;
-    headers = curl_slist_append(headers, "Content-Type: application/json");
+    std::vector<std::string> headers;
+    headers.push_back("Content-Type: application/json");
+    headers.push_back("Authorization: Bearer " + _apiKey);
 
-    std::string authHeader = "Authorization: Bearer " + _apiKey;
-    headers = curl_slist_append(headers, authHeader.c_str());
-
-    curl_easy_setopt(curl, CURLOPT_URL, _apiUrl.c_str());
-    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, postFields.c_str());
-    curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
-    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writeCallback);
-    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
-    curl_easy_setopt(curl, CURLOPT_TIMEOUT, TIMEOUT_SECONDS);
-    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 1L);
-    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 2L);
-
-    CURLcode res = curl_easy_perform(curl);
-
-    if (res != CURLE_OK) {
-        if (res == CURLE_OPERATION_TIMEDOUT) {
-            _lastError = "API request timed out";
-        } else {
-            _lastError = std::string("CURL error: ") + curl_easy_strerror(res);
-        }
-        curl_slist_free_all(headers);
-        curl_easy_cleanup(curl);
-        return false;
-    }
-
-    long httpCode = 0;
-    curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &httpCode);
-
-    curl_slist_free_all(headers);
-    curl_easy_cleanup(curl);
-
-    if (httpCode != 200) {
-        std::stringstream errorMsg;
-        errorMsg << "API request failed: HTTP " << httpCode;
-        _lastError = errorMsg.str();
+    if (!_httpClient.post(_apiUrl, headers, postFields, response)) {
+        _lastError = _httpClient.getLastError();
         return false;
     }
 

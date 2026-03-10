@@ -2,6 +2,7 @@
 #define LLMCLIENT_HPP
 
 #include <string>
+#include "HttpClient.hpp"
 
 class LLMClient {
 private:
@@ -9,6 +10,7 @@ private:
     std::string _apiUrl;
     std::string _model;
     std::string _lastError;
+    HttpClient _httpClient;
     static const int TIMEOUT_SECONDS = 30;
 
 public:
