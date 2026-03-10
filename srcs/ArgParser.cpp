@@ -2,12 +2,14 @@
 #include <iostream>
 #include <fstream>
 
-ArgParser::ArgParser() : _rank(), _level(), _subject(), _sourceFile(), _showHelp(false) {
+ArgParser::ArgParser() : _rank(), _level(), _subject(), _sourceFile(), _showHelp(false),
+    _listRanks(false), _listLevels(false), _listSubjects(false) {
 }
 
 ArgParser::ArgParser(const ArgParser &other)
     : _rank(other._rank), _level(other._level),
-      _subject(other._subject), _sourceFile(other._sourceFile), _showHelp(other._showHelp) {
+      _subject(other._subject), _sourceFile(other._sourceFile), _showHelp(other._showHelp),
+      _listRanks(other._listRanks), _listLevels(other._listLevels), _listSubjects(other._listSubjects) {
 }
 
 ArgParser &ArgParser::operator=(const ArgParser &other) {
@@ -17,6 +19,9 @@ ArgParser &ArgParser::operator=(const ArgParser &other) {
         _subject = other._subject;
         _sourceFile = other._sourceFile;
         _showHelp = other._showHelp;
+        _listRanks = other._listRanks;
+        _listLevels = other._listLevels;
+        _listSubjects = other._listSubjects;
     }
     return *this;
 }
@@ -59,6 +64,12 @@ bool ArgParser::parse(int argc, char **argv) {
                 return false;
             }
             _subject = argv[++i];
+        } else if (arg == "--list-ranks" || arg == "--lr") {
+            _listRanks = true;
+        } else if (arg == "--list-levels" || arg == "--ll") {
+            _listLevels = true;
+        } else if (arg == "--list-subjects" || arg == "--ls") {
+            _listSubjects = true;
         } else if (arg[0] == '-') {
             std::cerr << "Error: Unknown argument: " << arg << "\n";
             showUsage();
@@ -68,7 +79,8 @@ bool ArgParser::parse(int argc, char **argv) {
         }
     }
 
-    if (!_showHelp && _sourceFile.empty()) {
+    bool isListMode = _listRanks || _listLevels || _listSubjects;
+    if (!_showHelp && !isListMode && _sourceFile.empty()) {
         std::cerr << "Error: No source file provided\n";
         showUsage();
         return false;
@@ -86,13 +98,19 @@ void ArgParser::showUsage() const {
     std::cout << "Usage: ./examcli [options] <source_file>\n"
               << "\n"
               << "Options:\n"
-              << "  -r, --rank <name>     Rank name (e.g., rank02)\n"
-              << "  -l, --level <name>    Level name (e.g., level0)\n"
-              << "  -s, --subject <name>  Subject/exercise name (e.g., fizzbuzz)\n"
-              << "  -h, --help            Show this help message\n"
+              << "  -r, --rank <name>       Rank name (e.g., rank02)\n"
+              << "  -l, --level <name>      Level name (e.g., level0)\n"
+              << "  -s, --subject <name>    Subject/exercise name (e.g., fizzbuzz)\n"
+              << "  -h, --help              Show this help message\n"
+              << "  --list-ranks, --lr      List available ranks\n"
+              << "  --list-levels, --ll     List levels for a rank (requires -r)\n"
+              << "  --list-subjects, --ls   List subjects for rank/level (requires -r -l)\n"
               << "\n"
-              << "Example:\n"
-              << "  ./examcli -r rank02 -l level0 -s fizzbuzz solution.c\n";
+              << "Examples:\n"
+              << "  ./examcli -r rank02 -l level0 -s fizzbuzz solution.c\n"
+              << "  ./examcli --list-ranks\n"
+              << "  ./examcli -r rank04 --list-levels\n"
+              << "  ./examcli -r rank04 -l level1 --list-subjects\n";
 }
 
 bool ArgParser::hasRank() const {
@@ -125,6 +143,18 @@ const std::string &ArgParser::getSourceFile() const {
 
 bool ArgParser::shouldShowHelp() const {
     return _showHelp;
+}
+
+bool ArgParser::shouldListRanks() const {
+    return _listRanks;
+}
+
+bool ArgParser::shouldListLevels() const {
+    return _listLevels;
+}
+
+bool ArgParser::shouldListSubjects() const {
+    return _listSubjects;
 }
 
 bool ArgParser::fileExists(const std::string &path) const {

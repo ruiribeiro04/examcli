@@ -47,6 +47,31 @@ See all options:
 ./examcli -h
 ```
 
+### Listing Available Ranks, Levels, and Subjects
+
+When you get an error about a rank/level/subject not being found, the tool now automatically shows you what's available. You can also list them explicitly:
+
+List all available ranks:
+```bash
+./examcli --list-ranks
+# or
+./examcli --lr
+```
+
+List levels for a specific rank:
+```bash
+./examcli -r rank04 --list-levels
+# or
+./examcli -r rank04 --ll
+```
+
+List subjects for a specific rank and level:
+```bash
+./examcli -r rank04 -l level1 --list-subjects
+# or
+./examcli -r rank04 -l level1 --ls
+```
+
 ## Configuration
 
 You need to set these environment variables:
@@ -96,7 +121,7 @@ examcli/
 → Check your environment variables are set correctly.
 
 **"Subject not found"**
-→ Make sure the subject file exists in `subjects/<rank>/<level>/<subject>/sub.txt`
+→ The tool will automatically show available subjects for that rank/level. You can also use `./examcli -r <rank> -l <level> --list-subjects` to see all options.
 
 ## TODO / Ideas
 

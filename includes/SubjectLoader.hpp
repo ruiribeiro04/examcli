@@ -20,11 +20,20 @@ public:
     bool load(const std::string &rank, const std::string &level, const std::string &subject);
     const std::string &getSubjectContent() const;
 
+    std::vector<std::string> listRanks() const;
+    std::vector<std::string> listLevels(const std::string &rank) const;
+    std::vector<std::string> listSubjects(const std::string &rank, const std::string &level) const;
+
+    void showAvailableRanks() const;
+    void showAvailableLevels(const std::string &rank) const;
+    void showAvailableSubjects(const std::string &rank, const std::string &level) const;
+
 private:
     bool directoryExists(const std::string &path) const;
     std::vector<std::string> listTxtFiles(const std::string &dirPath) const;
     std::string readFile(const std::string &path) const;
     bool isValidName(const std::string &name) const;
+    std::vector<std::string> listDirectories(const std::string &path) const;
 };
 
 #endif

@@ -10,6 +10,9 @@ private:
     std::string _subject;
     std::string _sourceFile;
     bool _showHelp;
+    bool _listRanks;
+    bool _listLevels;
+    bool _listSubjects;
 
 public:
     ArgParser();
@@ -28,6 +31,9 @@ public:
     const std::string &getSubject() const;
     const std::string &getSourceFile() const;
     bool shouldShowHelp() const;
+    bool shouldListRanks() const;
+    bool shouldListLevels() const;
+    bool shouldListSubjects() const;
 
 private:
     bool fileExists(const std::string &path) const;
