@@ -47,4 +47,6 @@
 o*c/
 subjects/
 objs/
+examcli
+test_*
 *.md
