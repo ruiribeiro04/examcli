@@ -1,6 +1,8 @@
+# examcli v2.0.0
 # Configuration: Set to 1 to use environment variables, 0 for hardcoded values
 USE_ENV_VARS = 1
 USE_RESPONSE_FORMAT = 0
+VERSION = 2.0.0
 
 # Hardcoded values (used when USE_ENV_VARS = 0)
 DEFAULT_MODEL = model_name
