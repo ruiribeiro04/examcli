@@ -50,3 +50,4 @@ objs/
 examcli
 test_*
 *.md
+openspec/
