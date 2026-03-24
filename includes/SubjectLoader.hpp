@@ -23,10 +23,12 @@ public:
     std::vector<std::string> listRanks() const;
     std::vector<std::string> listLevels(const std::string &rank) const;
     std::vector<std::string> listSubjects(const std::string &rank, const std::string &level) const;
+    std::vector<std::string> listGeneratedExercises(const std::string &rank) const;
 
     void showAvailableRanks() const;
     void showAvailableLevels(const std::string &rank) const;
     void showAvailableSubjects(const std::string &rank, const std::string &level) const;
+    void showGeneratedExercises(const std::string &rank) const;
     void showAll() const;
 
 private:
@@ -35,6 +37,7 @@ private:
     std::string readFile(const std::string &path) const;
     bool isValidName(const std::string &name) const;
     std::vector<std::string> listDirectories(const std::string &path) const;
+    bool loadGeneratedExercise(const std::string &rank, const std::string &subject);
 };
 
 #endif

@@ -35,11 +35,6 @@ bool SubjectLoader::load(const std::string &rank, const std::string &level, cons
         return false;
     }
 
-    if (!isValidName(level)) {
-        std::cerr << "Error: Invalid level name: " << level << "\n";
-        return false;
-    }
-
     if (!isValidName(subject)) {
         std::cerr << "Error: Invalid subject name: " << subject << "\n";
         return false;
@@ -48,6 +43,18 @@ bool SubjectLoader::load(const std::string &rank, const std::string &level, cons
     _rank = rank;
     _level = level;
     _subject = subject;
+
+    // Try loading from generated exercises first (no level needed)
+    std::string generatedPath = "subjects/generated/" + rank + "/" + subject;
+    if (directoryExists(generatedPath)) {
+        return loadGeneratedExercise(rank, subject);
+    }
+
+    // Fall back to traditional structure (rank/level/subject)
+    if (!isValidName(level)) {
+        std::cerr << "Error: Invalid level name: " << level << "\n";
+        return false;
+    }
 
     std::string basePath = "subjects/";
     std::string rankPath = basePath + rank;
@@ -211,23 +218,59 @@ void SubjectLoader::showAvailableSubjects(const std::string &rank, const std::st
 
 void SubjectLoader::showAll() const {
     std::vector<std::string> ranks = listRanks();
-    
+
     std::cout << "Available exercises:\n\n";
-    
+
     for (size_t r = 0; r < ranks.size(); ++r) {
         std::cout << ranks[r] << "/\n";
-        
+
         std::vector<std::string> levels = listLevels(ranks[r]);
         for (size_t l = 0; l < levels.size(); ++l) {
             std::cout << "  " << levels[l] << "/\n";
-            
+
             std::vector<std::string> subjects = listSubjects(ranks[r], levels[l]);
             for (size_t s = 0; s < subjects.size(); ++s) {
                 std::cout << "    " << subjects[s] << "\n";
             }
         }
     }
-    
+
     std::cout << "\nUsage: ./examcli [options] <source_file>\n";
     std::cout << "Use -h for help\n";
+}
+
+bool SubjectLoader::loadGeneratedExercise(const std::string &rank, const std::string &subject) {
+    std::string subjectPath = "subjects/generated/" + rank + "/" + subject + "/attachment/subject.en.txt";
+
+    if (!directoryExists("subjects/generated/" + rank + "/" + subject)) {
+        std::cerr << "Error: Generated exercise not found: " << rank << "/" << subject << "\n";
+        return false;
+    }
+
+    _subjectContent = readFile(subjectPath);
+
+    if (_subjectContent.empty()) {
+        std::cerr << "Error: Cannot read subject file for generated exercise\n";
+        return false;
+    }
+
+    return true;
+}
+
+std::vector<std::string> SubjectLoader::listGeneratedExercises(const std::string &rank) const {
+    std::string generatedPath = "subjects/generated/" + rank;
+    return listDirectories(generatedPath);
+}
+
+void SubjectLoader::showGeneratedExercises(const std::string &rank) const {
+    std::vector<std::string> exercises = listGeneratedExercises(rank);
+    std::cout << "\nGenerated exercises for " << rank << ":\n";
+    if (exercises.empty()) {
+        std::cout << "  (none)\n";
+    } else {
+        for (size_t i = 0; i < exercises.size(); ++i) {
+            std::cout << "  " << exercises[i] << "\n";
+        }
+    }
+    std::cout << "\n";
 }

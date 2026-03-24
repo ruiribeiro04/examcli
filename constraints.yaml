@@ -1,0 +1,96 @@
+# 42 School Rank-Specific Constraints
+# This file defines coding norms and restrictions for each rank level
+# Used by the exercise generator to enforce appropriate constraints
+
+# Rank 00 - Beginner
+rank00:
+  forbidden: []
+  required:
+    - "Follow 42 norm"
+  max_lines: 25
+  allowed_functions:
+    - "malloc"
+    - "free"
+    - "write"
+    - "printf"
+
+# Rank 02 - Functions only, no loops
+rank02:
+  forbidden:
+    - "for loops"
+    - "do-while loops"
+    - "switch statements"
+    - "typedef"
+    - "enum"
+  required:
+    - "Use recursion instead of loops"
+    - "Implement as functions only"
+  max_lines: 25
+  allowed_functions:
+    - "malloc"
+    - "free"
+    - "write"
+    - "read"
+    - "printf"
+
+# Rank 03 - Data structures
+rank03:
+  forbidden:
+    - "for loops"
+    - "switch statements"
+    - "global variables"
+  required:
+    - "Use Orthodox Canonical Form for classes"
+    - "Proper memory management"
+  max_lines: 50
+  allowed_functions:
+    - "malloc"
+    - "free"
+    - "write"
+    - "printf"
+    - "memcpy"
+    - "memset"
+
+# Rank 04 - Advanced algorithms
+rank04:
+  forbidden:
+    - "global variables"
+    - "static variables for state"
+  required:
+    - "Orthodox Canonical Form"
+    - "C++98 standard only"
+    - "Proper error handling"
+  max_lines: 80
+  allowed_functions:
+    - "malloc"
+    - "free"
+    - "new"
+    - "delete"
+    - "printf"
+
+# Rank 05 - Complex systems
+rank05:
+  forbidden:
+    - "global variables"
+    - "using namespace std"
+  required:
+    - "Orthodox Canonical Form"
+    - "C++98 standard"
+    - "Exception handling where appropriate"
+    - "RAII principles"
+  max_lines: 100
+  allowed_functions: "*"
+
+# Default constraints for unspecified ranks
+default:
+  forbidden:
+    - "global variables"
+  required:
+    - "Follow 42 norm"
+    - "Proper memory management"
+    - "Error handling"
+  max_lines: 50
+  allowed_functions:
+    - "malloc"
+    - "free"
+    - "printf"
