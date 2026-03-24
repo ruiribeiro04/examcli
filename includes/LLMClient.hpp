@@ -22,6 +22,7 @@ public:
     bool initialize();
     bool correct(const std::string &subject, const std::string &code,
                  bool &correct, std::string &hint);
+    bool complete(const std::string &prompt, std::string &response);
     const std::string &getLastError() const;
 
 private:
