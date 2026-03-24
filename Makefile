@@ -27,7 +27,13 @@ SRCS = $(SRCS_DIR)/main.cpp \
        $(SRCS_DIR)/Submission.cpp \
        $(SRCS_DIR)/Result.cpp \
        $(SRCS_DIR)/FileReader.cpp \
-       $(SRCS_DIR)/HttpClient.cpp
+       $(SRCS_DIR)/HttpClient.cpp \
+       $(SRCS_DIR)/Generator.cpp \
+       $(SRCS_DIR)/Validator.cpp \
+       $(SRCS_DIR)/QualityScorer.cpp \
+       $(SRCS_DIR)/ExerciseSaver.cpp \
+       $(SRCS_DIR)/ExerciseExporter.cpp \
+       $(SRCS_DIR)/ExerciseImporter.cpp
 
 OBJS = $(SRCS:$(SRCS_DIR)/%.cpp=$(OBJS_DIR)/%.o)
 
@@ -43,11 +49,50 @@ $(OBJS_DIR):
 	mkdir -p $(OBJS_DIR)
 
 clean:
-	rm -rf $(OBJS_DIR)
+	rm -rf $(OBJS_DIR) $(TESTS_OBJS_DIR) test_validator test_qualityscorer test_integration
 
 fclean: clean
 	rm -f $(NAME)
 
 re: fclean all
 
-.PHONY: all clean fclean re
+# Test targets
+TESTS_DIR = tests
+TESTS_OBJS_DIR = tests_objs
+
+TEST_SRCS = $(TESTS_DIR)/test_generator.cpp \
+            $(TESTS_DIR)/test_validator.cpp \
+            $(TESTS_DIR)/test_qualityscorer.cpp \
+            $(TESTS_DIR)/test_integration.cpp
+
+TEST_BINS = $(TEST_SRCS:$(TESTS_DIR)/%.cpp=$(TESTS_OBJS_DIR)/%)
+
+# Test binaries
+test_validator: $(TESTS_OBJS_DIR)/test_validator.o $(filter-out $(OBJS_DIR)/main.o,$(OBJS))
+	$(CXX) $(CXXFLAGS) -o $@ $^
+
+test_qualityscorer: $(TESTS_OBJS_DIR)/test_qualityscorer.o $(filter-out $(OBJS_DIR)/main.o,$(OBJS))
+	$(CXX) $(CXXFLAGS) -o $@ $^
+
+test_integration: $(TESTS_OBJS_DIR)/test_integration.o $(filter-out $(OBJS_DIR)/main.o,$(OBJS))
+	$(CXX) $(CXXFLAGS) -o $@ $^
+
+$(TESTS_OBJS_DIR)/%.o: $(TESTS_DIR)/%.cpp | $(TESTS_OBJS_DIR)
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+$(TESTS_OBJS_DIR):
+	mkdir -p $(TESTS_OBJS_DIR)
+
+# Run all tests
+test: all test_validator test_qualityscorer
+	@echo "Running unit tests..."
+	@./test_validator
+	@./test_qualityscorer
+	@echo "All tests passed!"
+
+# Run integration test
+test-integration: all test_integration
+	@echo "Running integration test..."
+	@./test_integration
+
+.PHONY: all clean fclean re test test-integration

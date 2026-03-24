@@ -97,6 +97,77 @@ bool LLMClient::correct(const std::string &subject, const std::string &code,
     return true;
 }
 
+bool LLMClient::complete(const std::string &prompt, std::string &response) {
+    std::string escapedPrompt = escapeJson(prompt);
+
+    std::stringstream jsonBody;
+    jsonBody << "{"
+             << "\"model\":\"" << _model << "\","
+             << "\"messages\":[{\"role\":\"system\",\"content\":\"You "
+                "are a 42 school exercise generator. Generate complete, "
+                "compilable C exercises following the specifications exactly. "
+                "Always respond with valid JSON only, no additional text.\"},"
+                << "{\"role\":\"user\",\"content\":"
+             << escapedPrompt << "}]"
+#if USE_RESPONSE_FORMAT
+             << ",\"response_format\":{\"type\":\"json_object\"}"
+#endif
+             << ",\"temperature\":0.7"
+             << "}";
+
+    std::string postFields = jsonBody.str();
+    std::string apiResponse;
+
+    std::vector<std::string> headers;
+    headers.push_back("Content-Type: application/json");
+    headers.push_back("Authorization: Bearer " + _apiKey);
+
+    if (!_httpClient.post(_apiUrl, headers, postFields, apiResponse)) {
+        _lastError = _httpClient.getLastError();
+        return false;
+    }
+
+    // Extract the content from the API response
+    size_t contentPos = apiResponse.find("\"content\":");
+    if (contentPos != std::string::npos) {
+        size_t start = apiResponse.find('"', contentPos + 10);
+        if (start != std::string::npos) {
+            start++;
+            size_t end = start;
+            while (end < apiResponse.length()) {
+                if (apiResponse[end] == '"' && apiResponse[end - 1] != '\\') {
+                    break;
+                }
+                end++;
+            }
+            if (end < apiResponse.length()) {
+                response = apiResponse.substr(start, end - start);
+
+                // Remove markdown code blocks if present
+                size_t codeBlockStart = response.find("```json");
+                if (codeBlockStart != std::string::npos) {
+                    codeBlockStart += 7;
+                    size_t codeBlockEnd = response.find("```", codeBlockStart);
+                    if (codeBlockEnd != std::string::npos) {
+                        response = response.substr(codeBlockStart, codeBlockEnd - codeBlockStart);
+                        // Trim whitespace
+                        size_t first = response.find_first_not_of(" \t\n\r");
+                        size_t last = response.find_last_not_of(" \t\n\r");
+                        if (first != std::string::npos && last != std::string::npos) {
+                            response = response.substr(first, last - first + 1);
+                        }
+                    }
+                }
+
+                return true;
+            }
+        }
+    }
+
+    _lastError = "Invalid API response format: missing content";
+    return false;
+}
+
 const std::string &LLMClient::getLastError() const {
     return _lastError;
 }
